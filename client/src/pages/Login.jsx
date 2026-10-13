@@ -3,18 +3,18 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useApp } from "../context/AppContext.jsx";
 import ForgetPasswordModal from "../components/ForgetPasswordModal.jsx";
+import PhoneOtpLogin from "../components/PhoneOtpLogin.jsx";
 
 export default function Login() {
-  const { login, register, authLoading, user } = useApp();
+  const { login, authLoading, user } = useApp();
   const navigate = useNavigate();
 
-  const [mode, setMode] = useState("login"); // "login" | "register"
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [forgotOpen, setForgotOpen] = useState(false);
+  const [phoneLoginOpen, setPhoneLoginOpen] = useState(false);
 
   // If already logged in, go to home which now shows full details
   if (user) {
@@ -27,22 +27,15 @@ export default function Login() {
     setError("");
     setSuccess("");
 
-    if (mode === "register" && !name.trim()) {
-      setError("Please enter your name.");
-      return;
-    }
     if (!email.trim() || !password.trim()) {
       setError("Please fill in all fields.");
       return;
     }
 
-    const res =
-      mode === "login"
-        ? await login(email, password)
-        : await register(name, email, password);
+    const res = await login(email, password);
 
     if (res.ok) {
-      setSuccess(mode === "login" ? "Login successful!" : "Registration successful!");
+      setSuccess("Login successful!");
       setTimeout(() => {
         navigate("/");
       }, 900);
@@ -61,26 +54,21 @@ export default function Login() {
       >
         <div className="login-brand">
           <span className="login-brand-icon">🚂</span>
-          <h1>{mode === "login" ? "Welcome Back" : "Create Account"}</h1>
+          <h1>Welcome Back</h1>
           <p>RailGaadi — Login to access live train tracking & details</p>
         </div>
 
         {success && <div className="auth-success">{success}</div>}
         {error && <div className="auth-error">{error}</div>}
 
+        {phoneLoginOpen ? (
+          <PhoneOtpLogin
+            onSuccess={() => navigate("/")}
+            onCancel={() => setPhoneLoginOpen(false)}
+          />
+        ) : (
+        <>
         <form onSubmit={handleSubmit} className="auth-form">
-          {mode === "register" && (
-            <div className="form-field">
-              <label>Full Name</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Enter your name"
-              />
-            </div>
-          )}
-
           <div className="form-field">
             <label>Email</label>
             <input
@@ -102,30 +90,26 @@ export default function Login() {
           </div>
 
           <button type="submit" className="btn btn-primary auth-submit" disabled={authLoading}>
-            {authLoading
-              ? "Please wait..."
-              : mode === "login"
-              ? "Login"
-              : "Register"}
+            {authLoading ? "Please wait..." : "Login"}
           </button>
         </form>
+        <button
+          type="button"
+          className="auth-link"
+          onClick={() => setPhoneLoginOpen(true)}
+        >
+          Login with mobile number
+        </button>
+        </>
+        )}
 
         <div className="auth-switch">
-          {mode === "login" ? (
-            <span>
-              Don't have an account?{" "}
-              <button className="auth-link" onClick={() => setMode("register")}>
-                Register
-              </button>
-            </span>
-          ) : (
-            <span>
-              Already have an account?{" "}
-              <button className="auth-link" onClick={() => setMode("login")}>
-                Login
-              </button>
-            </span>
-          )}
+          <span>
+            Don't have an account?{" "}
+            <button className="auth-link" onClick={() => navigate("/auth?mode=register")}>
+              Register with email verification
+            </button>
+          </span>
         </div>
 
         {/* Forgot password + Back to home */}

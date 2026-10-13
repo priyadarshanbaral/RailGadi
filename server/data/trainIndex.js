@@ -55,11 +55,131 @@ const normalizeTrain = (raw) => {
     from,
     to,
     route: routeCodes,
+    timetable: raw.trainRoute || [],
     runningDays: raw.runningDays || {},
   };
 };
 
-const trains = rawTrains.map(normalizeTrain);
+const FLAGSHIP_TRAINS = [
+  {
+    number: "12301",
+    name: "HOWRAH RAJDHANI EXPRESS",
+    type: "Rajdhani",
+    status: "On Time",
+    delay: 0,
+    from: "HWH",
+    to: "NDLS",
+    route: ["HWH", "ASN", "DHN", "GAYA", "DDU", "PRYJ", "CNB", "NDLS"],
+    runningDays: { Sun: true, Mon: true, Tue: true, Wed: true, Thu: true, Fri: true, Sat: false },
+  },
+  {
+    number: "12302",
+    name: "NEW DELHI - HOWRAH RAJDHANI",
+    type: "Rajdhani",
+    status: "Delayed",
+    delay: 15,
+    from: "NDLS",
+    to: "HWH",
+    route: ["NDLS", "CNB", "PRYJ", "DDU", "GAYA", "DHN", "ASN", "HWH"],
+    runningDays: { Sun: true, Mon: true, Tue: true, Wed: true, Thu: true, Fri: true, Sat: true },
+  },
+  {
+    number: "12951",
+    name: "MUMBAI TEJAS RAJDHANI",
+    type: "Rajdhani",
+    status: "On Time",
+    delay: 0,
+    from: "BCT",
+    to: "NDLS",
+    route: ["BCT", "ST", "BRC", "RTM", "KOTA", "NDLS"],
+    runningDays: { Sun: true, Mon: true, Tue: true, Wed: true, Thu: true, Fri: true, Sat: true },
+  },
+  {
+    number: "12952",
+    name: "NEW DELHI - MUMBAI RAJDHANI",
+    type: "Rajdhani",
+    status: "On Time",
+    delay: 0,
+    from: "NDLS",
+    to: "BCT",
+    route: ["NDLS", "KOTA", "RTM", "BRC", "ST", "BCT"],
+    runningDays: { Sun: true, Mon: true, Tue: true, Wed: true, Thu: true, Fri: true, Sat: true },
+  },
+  {
+    number: "22436",
+    name: "VARANASI VANDE BHARAT EXP",
+    type: "Vande Bharat",
+    status: "On Time",
+    delay: 0,
+    from: "NDLS",
+    to: "BSB",
+    route: ["NDLS", "CNB", "PRYJ", "BSB"],
+    runningDays: { Sun: true, Mon: false, Tue: true, Wed: true, Thu: false, Fri: true, Sat: true },
+  },
+  {
+    number: "22435",
+    name: "VANDE BHARAT EXPRESS",
+    type: "Vande Bharat",
+    status: "On Time",
+    delay: 0,
+    from: "BSB",
+    to: "NDLS",
+    route: ["BSB", "PRYJ", "CNB", "NDLS"],
+    runningDays: { Sun: true, Mon: false, Tue: true, Wed: true, Thu: false, Fri: true, Sat: true },
+  },
+  {
+    number: "20608",
+    name: "MYSURU - CHENNAI VANDE BHARAT",
+    type: "Vande Bharat",
+    status: "On Time",
+    delay: 0,
+    from: "MYS",
+    to: "MAS",
+    route: ["MYS", "SBC", "MAS"],
+    runningDays: { Sun: true, Mon: true, Tue: true, Wed: false, Thu: true, Fri: true, Sat: true },
+  },
+  {
+    number: "12004",
+    name: "LUCKNOW SWARNA SHATABDI",
+    type: "Shatabdi",
+    status: "Delayed",
+    delay: 8,
+    from: "NDLS",
+    to: "LKO",
+    route: ["NDLS", "AGC", "CNB", "LKO"],
+    runningDays: { Sun: true, Mon: true, Tue: true, Wed: true, Thu: true, Fri: true, Sat: true },
+  },
+  {
+    number: "12260",
+    name: "SEALDAH AC DURONTO",
+    type: "Duronto",
+    status: "On Time",
+    delay: 0,
+    from: "NDLS",
+    to: "SDAH",
+    route: ["NDLS", "CNB", "DDU", "DHN", "SDAH"],
+    runningDays: { Sun: false, Mon: true, Tue: false, Wed: true, Thu: false, Fri: true, Sat: false },
+  },
+  {
+    number: "12626",
+    name: "KERALA EXPRESS",
+    type: "Superfast",
+    status: "Delayed",
+    delay: 18,
+    from: "NDLS",
+    to: "TVC",
+    route: ["NDLS", "AGC", "GWL", "BPL", "NGP", "TVC"],
+    runningDays: { Sun: true, Mon: true, Tue: true, Wed: true, Thu: true, Fri: true, Sat: true },
+  },
+];
+
+const parsedTrains = rawTrains.map(normalizeTrain);
+
+// Combine flagship trains ahead so they take priority
+const trains = [
+  ...FLAGSHIP_TRAINS,
+  ...parsedTrains.filter((t) => !FLAGSHIP_TRAINS.some((f) => f.number === t.number)),
+];
 
 // Search by number or name (case-insensitive substring).
 export const findTrain = (query) => {

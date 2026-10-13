@@ -82,11 +82,26 @@ export default function TrainPage() {
     );
   }
 
-const { train, currentStation, nextStation, destination, currentPlatform, livePosition, progress, distanceCovered, distanceRemaining, totalDistance, lastUpdate, upcoming } = live;
+const {
+  train,
+  telemetry = {},
+  aiPrediction = {},
+  currentStation,
+  nextStation,
+  destination,
+  currentPlatform,
+  livePosition,
+  progress,
+  distanceCovered,
+  distanceRemaining,
+  totalDistance,
+  lastUpdate,
+  upcoming,
+} = live;
   const fav = isFavorite(train.number);
 
   const tabs = [
-    { id: "status", label: "📍 Live Status" },
+    { id: "status", label: "📍 Live Status & AI" },
     { id: "map", label: "🗺️ Journey Map" },
     { id: "analytics", label: "📊 Analytics" },
     { id: "companion", label: "🤖 Companion" },
@@ -102,6 +117,16 @@ const { train, currentStation, nextStation, destination, currentPlatform, livePo
     }
   };
 
+  const playAnnouncement = () => {
+    if (!window.speechSynthesis) return;
+    const msg = train.delay > 0
+      ? `Attention please! Train number ${train.number}, ${train.name}, is running delayed by ${train.delay} minutes. Approaching ${nextStation?.name || "destination"} on Platform ${nextStation?.platform || currentPlatform || 1}.`
+      : `May I have your attention please! Train number ${train.number}, ${train.name}, is running right on time. Next arrival is ${nextStation?.name || "destination"} on Platform ${nextStation?.platform || currentPlatform || 1}.`;
+    const u = new SpeechSynthesisUtterance(msg);
+    u.rate = 0.95;
+    window.speechSynthesis.speak(u);
+  };
+
   return (
     <div className="train-page">
       {/* Header */}
@@ -115,13 +140,24 @@ const { train, currentStation, nextStation, destination, currentPlatform, livePo
                 {train.status}
                 {train.delay > 0 && ` +${train.delay} min`}
               </span>
+              {telemetry?.speedKmH !== undefined && (
+                <span className="badge badge-on-time">
+                  ⚡ {telemetry.speedKmH} km/h
+                </span>
+              )}
             </div>
           </div>
           <div className="train-header-actions">
+            <Link to={`/live?train=${train.number}`} className="btn btn-primary">
+              🛰️ Live AI Radar
+            </Link>
+            <button className="btn" onClick={playAnnouncement}>
+              🔊 Announcement
+            </button>
             <button className="btn" onClick={() => toggleFavorite(train)}>
               {fav ? "★ Favourite" : "☆ Add Favourite"}
             </button>
-            <button className="btn btn-primary" onClick={shareJourney}>
+            <button className="btn" onClick={shareJourney}>
               🔗 Share
             </button>
           </div>
@@ -131,6 +167,10 @@ const { train, currentStation, nextStation, destination, currentPlatform, livePo
           <div className="header-stat">
             <span className="header-stat-label">Progress</span>
             <AnimatedCounter value={progress} suffix="%" />
+          </div>
+          <div className="header-stat">
+            <span className="header-stat-label">Live Speed</span>
+            <strong>{telemetry?.speedKmH || 0} km/h</strong>
           </div>
           <div className="header-stat">
             <span className="header-stat-label">Distance Covered</span>
@@ -248,6 +288,45 @@ const { train, currentStation, nextStation, destination, currentPlatform, livePo
                 </div>
               </div>
             </div>
+
+            {/* AI Neural Prediction Card */}
+            {aiPrediction && (
+              <div className="glass-card ai-prediction-card" style={{ marginTop: 20 }}>
+                <div className="ai-card-header">
+                  <span className="ai-glow-tag">🤖 NEURAL AI DELAY FORECAST</span>
+                  <span className="ai-confidence-tag">
+                    {aiPrediction.confidencePercent}% Confidence
+                  </span>
+                </div>
+                <div className="ai-prediction-body">
+                  <div className="ai-prediction-main">
+                    <span className="ai-pred-label">Projected Final Delay at Terminus:</span>
+                    <h2 className={aiPrediction.predictedFinalDelay > 0 ? "text-danger" : "text-success"}>
+                      {aiPrediction.predictedFinalDelay > 0
+                        ? `+${aiPrediction.predictedFinalDelay} min delayed`
+                        : "Right on Time (0 min delay)"}
+                    </h2>
+                  </div>
+                  <p className="ai-pred-note">{aiPrediction.recommendation}</p>
+                  <div className="ai-factors-grid">
+                    <div className="ai-factor-item">
+                      <span>Recovery Potential:</span>
+                      <strong>
+                        {aiPrediction.recoveryPotentialMinutes > 0
+                          ? `-${aiPrediction.recoveryPotentialMinutes}m`
+                          : "Optimal"}
+                      </strong>
+                    </div>
+                    <div className="ai-factor-item">
+                      <span>Route Risk Level:</span>
+                      <strong className={`risk-${aiPrediction.riskLevel.toLowerCase()}`}>
+                        {aiPrediction.riskLevel}
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Upcoming stations */}
             <div className="glass-card" style={{ marginTop: 20 }}>

@@ -1482,6 +1482,17 @@ a {
     transition: all var(--rg-transition)
 }
 
+.phone-input-row {
+    display: grid;
+    grid-template-columns: minmax(105px, 0.85fr) minmax(0, 1.4fr);
+    gap: 8px;
+}
+
+.phone-input-row input,
+.phone-input-row select {
+    min-width: 0;
+}
+
 .form-field textarea {
     height: auto;
     min-height: 110px;
@@ -1499,6 +1510,19 @@ a {
     width: 100%;
     margin-top: 0;
     height: 42px
+}
+
+@media (max-width: 380px) {
+    .phone-input-row {
+        grid-template-columns: minmax(96px, 0.8fr) minmax(0, 1.2fr);
+        gap: 5px;
+    }
+
+    .phone-input-row input,
+    .phone-input-row select {
+        padding-right: 8px;
+        padding-left: 8px;
+    }
 }
 
 .auth-panel-alt,
@@ -4383,3 +4407,1661 @@ html, body {
         transition-duration: .01ms !important
     }
 }
+
+/* ==========================================================================
+   ADVANCED LIVE TRAIN TRACKING & AI COMMAND CENTER STYLES
+   ========================================================================== */
+
+.live-command-center {
+    width: min(1360px, calc(100% - 32px));
+    margin: 24px auto 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* --- Top Telemetry Header --- */
+.live-telemetry-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 12px;
+    color: #f8fafc;
+    flex-wrap: wrap;
+    gap: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.live-telemetry-status-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.pulse-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #38bdf8;
+}
+
+.pulse-dot {
+    width: 10px;
+    height: 10px;
+    background-color: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #10b981;
+    animation: pulse-glow 1.5s infinite;
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.4);
+        opacity: 0.6;
+    }
+}
+
+.telemetry-stat-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    background: rgba(30, 41, 59, 0.8);
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.telemetry-stat-badge .badge-label {
+    color: #94a3b8;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.refresh-pill-btn {
+    background: #0284c7;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.refresh-pill-btn:hover {
+    background: #0369a1;
+}
+
+.live-telemetry-controls-group {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.sim-speed-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+.speed-chip {
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #cbd5e1;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.speed-chip:hover {
+    background: #334155;
+}
+
+.speed-chip.active {
+    background: #0284c7;
+    color: white;
+    border-color: #38bdf8;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+}
+
+.btn-announcement {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+}
+
+.btn-announcement:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(217, 119, 6, 0.4);
+}
+
+.btn-announcement.speaking-active {
+    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+    animation: pulse-glow 1.2s infinite;
+}
+
+/* --- Train Selection Strip --- */
+.live-train-selection-strip {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px 18px;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+}
+
+.popular-trains-carousel {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.carousel-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #94a3b8;
+    white-space: nowrap;
+    margin-right: 4px;
+}
+
+.popular-train-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #e2e8f0;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.popular-train-chip:hover {
+    background: #334155;
+    border-color: #64748b;
+}
+
+.popular-train-chip.active {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    color: white;
+    border-color: #38bdf8;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
+}
+
+.popular-train-chip .pt-number {
+    font-weight: 700;
+}
+
+.live-search-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.live-search-input {
+    width: 100%;
+    background: #0f172a;
+    border: 1px solid #334155;
+    color: #f8fafc;
+    border-radius: 8px;
+    padding: 10px 38px 10px 14px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.live-search-input:focus {
+    border-color: #38bdf8;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+.clear-search-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.live-search-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: #0f172a;
+    border: 1px solid #38bdf8;
+    border-radius: 8px;
+    max-height: 280px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+}
+
+.search-result-item {
+    padding: 10px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.15s;
+}
+
+.search-result-item:hover {
+    background: #1e293b;
+}
+
+.search-result-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #f8fafc;
+}
+
+.search-result-route {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+/* --- Navigation Tabs --- */
+.live-nav-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+}
+
+.live-nav-tab {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #cbd5e1;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.live-nav-tab:hover {
+    background: #334155;
+    color: #ffffff;
+}
+
+.live-nav-tab.active {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    color: #ffffff;
+    border-color: #38bdf8;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+}
+
+/* --- Hero Telemetry Deck --- */
+.live-train-hero-card {
+    padding: 22px;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 16px;
+    color: #f8fafc;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.train-hero-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.train-class-badge {
+    background: rgba(56, 189, 248, 0.15);
+    color: #38bdf8;
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 6px;
+}
+
+.train-hero-name {
+    font-size: 26px;
+    font-weight: 800;
+    margin: 0;
+    color: #f8fafc;
+    letter-spacing: -0.5px;
+}
+
+.train-hero-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 4px;
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+.train-hero-number {
+    font-weight: 700;
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.train-hero-speedometer {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(15, 23, 42, 0.7);
+    padding: 12px 18px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.speedometer-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 80px;
+}
+
+.speedometer-value {
+    font-size: 36px;
+    font-weight: 900;
+    color: #38bdf8;
+    line-height: 1;
+    font-family: monospace;
+}
+
+.speedometer-unit {
+    font-size: 10px;
+    font-weight: 700;
+    color: #94a3b8;
+    letter-spacing: 1px;
+}
+
+.speed-status-indicator {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.signal-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+}
+
+.speed-status-indicator strong {
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+}
+
+.speed-status-indicator small {
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+/* --- Progress Bar Deck --- */
+.live-progress-deck {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.progress-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #cbd5e1;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.progress-pct {
+    color: #38bdf8;
+    font-weight: 700;
+}
+
+.progress-bar-track {
+    width: 100%;
+    height: 12px;
+    background: #0f172a;
+    border-radius: 6px;
+    overflow: visible;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%);
+    border-radius: 6px;
+    position: relative;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+}
+
+.progress-train-head {
+    position: absolute;
+    right: -10px;
+    top: -8px;
+    font-size: 16px;
+    animation: bounce-marker 1.6s infinite;
+}
+
+.progress-metrics-row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-top: 8px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.metric-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.metric-label {
+    font-size: 11px;
+    color: #94a3b8;
+    text-transform: uppercase;
+}
+
+.metric-cell strong {
+    font-size: 14px;
+    color: #f8fafc;
+}
+
+/* --- Layout Split for Tracker --- */
+.live-tracking-layout {
+    display: grid;
+    grid-template-columns: 1.8fr 1fr;
+    gap: 18px;
+}
+
+.map-view-wrapper {
+    background: #0f172a;
+    border-radius: 16px;
+    overflow: hidden;
+    min-height: 520px;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.live-side-deck {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.card-badge {
+    font-size: 10px;
+    font-weight: 800;
+    color: #38bdf8;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+
+.next-station-card {
+    padding: 18px;
+    background: rgba(15, 23, 42, 0.85);
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #f8fafc;
+}
+
+.next-station-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin: 0 0 14px;
+    color: #f8fafc;
+}
+
+.next-station-meta-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: rgba(30, 41, 59, 0.6);
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.meta-label {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.platform-number {
+    color: #f59e0b;
+}
+
+/* --- AI Prediction Card --- */
+.ai-prediction-card {
+    padding: 18px;
+    background: linear-gradient(135deg, rgba(30, 27, 75, 0.85) 0%, rgba(15, 23, 42, 0.9) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.35);
+    border-radius: 14px;
+    color: #f8fafc;
+    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.15);
+}
+
+.ai-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.ai-glow-tag {
+    font-size: 11px;
+    font-weight: 800;
+    color: #a78bfa;
+    letter-spacing: 0.5px;
+}
+
+.ai-confidence-tag {
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(139, 92, 246, 0.2);
+    color: #c4b5fd;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(139, 92, 246, 0.4);
+}
+
+.ai-pred-label {
+    font-size: 11px;
+    color: #cbd5e1;
+}
+
+.ai-prediction-main h2 {
+    margin: 2px 0 8px;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.ai-pred-note {
+    font-size: 12px;
+    color: #94a3b8;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.ai-factors-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.ai-factor-item {
+    background: rgba(15, 23, 42, 0.6);
+    padding: 6px 10px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.risk-low {
+    color: #10b981;
+}
+
+.risk-moderate {
+    color: #f59e0b;
+}
+
+.risk-high {
+    color: #ef4444;
+}
+
+/* --- Locomotive Specs Card --- */
+.loco-specs-card {
+    padding: 16px;
+    background: rgba(15, 23, 42, 0.85);
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #f8fafc;
+}
+
+.loco-specs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    font-size: 12px;
+}
+
+.loco-specs-grid > div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.spec-label {
+    font-size: 10px;
+    color: #94a3b8;
+    text-transform: uppercase;
+}
+
+/* --- LiveMap Toolbar & Leaflet Enhancements --- */
+.livemap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 520px;
+}
+
+.livemap-container {
+    width: 100%;
+    height: 100%;
+    min-height: 520px;
+    border-radius: 16px;
+}
+
+.livemap-toolbar {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.livemap-controls-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    pointer-events: all;
+}
+
+.map-style-pills {
+    display: flex;
+    background: rgba(15, 23, 42, 0.85);
+    border-radius: 8px;
+    padding: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.map-style-pill {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.map-style-pill.active {
+    background: #0284c7;
+    color: #ffffff;
+}
+
+.livemap-telemetry-pill {
+    pointer-events: all;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: #38bdf8;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    backdrop-filter: blur(8px);
+}
+
+.telemetry-live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #10b981;
+    box-shadow: 0 0 8px #10b981;
+    animation: pulse-glow 1.2s infinite;
+}
+
+/* --- Train Marker on Map with Radar Waves --- */
+.live-train-div-icon {
+    background: transparent !important;
+    border: none !important;
+}
+
+.train-radar-wrapper {
+    position: relative;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.radar-pulse-ring {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid #38bdf8;
+    opacity: 0.8;
+    animation: radar-wave 2s infinite cubic-bezier(0.1, 0.8, 0.3, 1);
+}
+
+@keyframes radar-wave {
+    0% {
+        transform: scale(0.6);
+        opacity: 0.9;
+    }
+    100% {
+        transform: scale(2.2);
+        opacity: 0;
+    }
+}
+
+.train-loco-marker {
+    width: 32px;
+    height: 32px;
+    background: #0284c7;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 14px rgba(2, 132, 199, 0.8);
+    position: relative;
+    z-index: 2;
+}
+
+.train-loco-marker.halted {
+    background: #ef4444;
+    box-shadow: 0 0 14px rgba(239, 68, 68, 0.8);
+}
+
+.train-emoji {
+    font-size: 16px;
+}
+
+.marker-speed-tag {
+    position: absolute;
+    bottom: -8px;
+    background: #0f172a;
+    color: #38bdf8;
+    border: 1px solid #38bdf8;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 1px 4px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 3;
+}
+
+.marker-speed-tag.halt-tag {
+    color: #ef4444;
+    border-color: #ef4444;
+}
+
+/* Fleet Markers */
+.fleet-radar-icon {
+    background: transparent !important;
+    border: none !important;
+}
+
+.fleet-marker-badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid #38bdf8;
+    color: #ffffff;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    white-space: nowrap;
+}
+
+.fleet-marker-badge.delayed {
+    border-color: #ef4444;
+}
+
+.fleet-marker-badge.selected {
+    background: #0284c7;
+    border-color: #ffffff;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.9);
+}
+
+.fleet-dot {
+    width: 6px;
+    height: 6px;
+    background: #10b981;
+    border-radius: 50%;
+}
+
+.fleet-marker-badge.delayed .fleet-dot {
+    background: #ef4444;
+}
+
+.fleet-speed {
+    color: #94a3b8;
+    font-size: 9px;
+}
+
+/* --- Nationwide Radar Layout --- */
+.radar-fleet-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.radar-info-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: rgba(15, 23, 42, 0.85);
+    border-radius: 14px;
+    color: #f8fafc;
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.radar-banner-left h3 {
+    margin: 0 0 4px;
+    font-size: 18px;
+}
+
+.radar-banner-left p {
+    margin: 0;
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.radar-map-container {
+    height: 560px;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.fleet-list-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+}
+
+.fleet-card {
+    padding: 14px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #f8fafc;
+}
+
+.fleet-card:hover {
+    border-color: #38bdf8;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.fleet-card.active-train {
+    border-color: #38bdf8;
+    background: rgba(2, 132, 199, 0.15);
+}
+
+.fleet-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.fleet-card-num {
+    font-size: 15px;
+    color: #38bdf8;
+}
+
+.fleet-card-name {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fleet-card-route {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-bottom: 8px;
+}
+
+.fleet-card-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #cbd5e1;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 8px;
+}
+
+/* --- AI Workspace & Chat Layout --- */
+.ai-workspace-layout {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 18px;
+}
+
+.ai-detailed-report {
+    padding: 22px;
+    background: rgba(15, 23, 42, 0.85);
+    border-radius: 16px;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: #f8fafc;
+}
+
+.ai-report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 14px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.ai-report-header h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.ai-score-badge {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    font-weight: 700;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+
+.ai-lead-paragraph {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #cbd5e1;
+}
+
+.ai-factors-deck {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.ai-factor-card {
+    padding: 12px;
+    background: rgba(30, 41, 59, 0.6);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.factor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    font-size: 13px;
+}
+
+.factor-impact {
+    font-size: 11px;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.bottlenecks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.bottleneck-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: rgba(30, 41, 59, 0.5);
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.risk-tag {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* --- Copilot Chat Drawer --- */
+.ai-chat-column {
+    display: flex;
+    flex-direction: column;
+    height: 600px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(56, 189, 248, 0.25);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: #0f172a;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.chat-avatar {
+    font-size: 24px;
+    background: rgba(56, 189, 248, 0.15);
+    padding: 6px;
+    border-radius: 50%;
+}
+
+.chat-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+.chat-status {
+    font-size: 11px;
+    color: #38bdf8;
+}
+
+.chat-messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.chat-bubble-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 88%;
+}
+
+.user-wrapper {
+    align-self: flex-end;
+}
+
+.ai-wrapper {
+    align-self: flex-start;
+}
+
+.chat-bubble {
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.user-bubble {
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    color: #ffffff;
+    border-bottom-right-radius: 2px;
+}
+
+.ai-bubble {
+    background: #1e293b;
+    color: #f1f5f9;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom-left-radius: 2px;
+}
+
+.chat-chips-deck {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.chat-prompt-chip {
+    background: #0f172a;
+    border: 1px solid #38bdf8;
+    color: #38bdf8;
+    padding: 4px 10px;
+    border-radius: 14px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.chat-prompt-chip:hover {
+    background: #38bdf8;
+    color: #0f172a;
+}
+
+.typing-bubble {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 12px 18px;
+}
+
+.typing-dot {
+    width: 6px;
+    height: 6px;
+    background: #94a3b8;
+    border-radius: 50%;
+    animation: typing-bounce 1.4s infinite;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing-bounce {
+    0%, 60%, 100% {
+        transform: translateY(0);
+    }
+    30% {
+        transform: translateY(-6px);
+    }
+}
+
+.chat-input-bar {
+    display: flex;
+    padding: 12px;
+    background: #0f172a;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    gap: 8px;
+}
+
+.chat-text-input {
+    flex: 1;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: #f8fafc;
+    font-size: 13px;
+    outline: none;
+}
+
+.chat-text-input:focus {
+    border-color: #38bdf8;
+}
+
+.chat-send-btn {
+    padding: 0 16px;
+    font-size: 15px;
+    border-radius: 8px;
+}
+
+/* --- Vertical Station Timeline --- */
+.timeline-layout {
+    padding: 24px;
+    background: rgba(15, 23, 42, 0.85);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #f8fafc;
+}
+
+.timeline-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 14px;
+    margin-bottom: 20px;
+}
+
+.timeline-header h2 {
+    margin: 0 0 6px;
+    font-size: 20px;
+}
+
+.timeline-header p {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.vertical-timeline {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding-left: 20px;
+}
+
+.vertical-timeline::before {
+    content: "";
+    position: absolute;
+    left: 31px;
+    top: 10px;
+    bottom: 10px;
+    width: 2px;
+    background: #334155;
+}
+
+.timeline-stop {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 12px 0;
+    position: relative;
+}
+
+.timeline-marker {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    z-index: 2;
+    flex-shrink: 0;
+}
+
+.passed-marker {
+    background: #10b981;
+    color: #ffffff;
+}
+
+.current-marker {
+    background: #f59e0b;
+    color: #ffffff;
+    box-shadow: 0 0 12px #f59e0b;
+    animation: pulse-glow 1.5s infinite;
+}
+
+.upcoming-marker {
+    background: #1e293b;
+    border: 2px solid #64748b;
+    color: #94a3b8;
+}
+
+.timeline-info {
+    flex: 1;
+    background: rgba(30, 41, 59, 0.4);
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.highlight-info {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.4);
+}
+
+.stop-name-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.stop-meta {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+/* --- Mobile Responsiveness --- */
+@media (max-width: 992px) {
+    .live-tracking-layout,
+    .ai-workspace-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .progress-metrics-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .live-telemetry-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .train-hero-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .train-hero-speedometer {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .progress-metrics-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- Homepage Live Spotlight Card --- */
+.live-home-spotlight {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 24px;
+    padding: 28px;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 16px;
+    color: #f8fafc;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+}
+
+.spotlight-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #38bdf8;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.spotlight-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #f8fafc;
+    margin: 0 0 10px;
+}
+
+.spotlight-desc {
+    font-size: 14px;
+    color: #94a3b8;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.spotlight-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.spotlight-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.spotlight-stats-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: rgba(15, 23, 42, 0.7);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.spotlight-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 8px;
+}
+
+.spotlight-stat-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.spotlight-stat-row span {
+    color: #94a3b8;
+}
+
+@media (max-width: 900px) {
+    .live-home-spotlight {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- OTP Verification Styles --- */
+.otp-email-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: #cbd5e1;
+    margin-bottom: 12px;
+}
+
+.otp-email-banner strong {
+    color: #38bdf8;
+}
+
+/* --- Local development OTP notice (Twilio not configured) --- */
+.auth-dev-otp {
+    background: rgba(250, 204, 21, 0.12);
+    border: 1px dashed rgba(250, 204, 21, 0.5);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    text-align: center;
+}
+
+.auth-dev-otp-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #facc15;
+    margin-bottom: 4px;
+}
+
+.auth-dev-otp-help {
+    font-size: 12px;
+    color: #cbd5e1;
+    margin-bottom: 8px;
+}
+
+.auth-dev-otp-code {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: 8px;
+    color: #facc15;
+    margin-bottom: 10px;
+}
+
+.auth-dev-otp-fill {
+    background: rgba(250, 204, 21, 0.2);
+    border: 1px solid rgba(250, 204, 21, 0.5);
+    color: #facc15;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.auth-dev-otp-fill:hover {
+    background: rgba(250, 204, 21, 0.32);
+}
+
+.otp-input-box {
+    text-align: center !important;
+    font-family: 'Courier New', Courier, monospace !important;
+    font-size: 26px !important;
+    font-weight: 800 !important;
+    letter-spacing: 10px !important;
+    color: #38bdf8 !important;
+    background: #0f172a !important;
+    border: 2px solid #0284c7 !important;
+    border-radius: 10px !important;
+    height: 52px !important;
+    box-shadow: 0 0 14px rgba(2, 132, 199, 0.25) !important;
+}
+
+.otp-input-box:focus {
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.5) !important;
+}
+
+.otp-timer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    margin: 4px 0 14px;
+}
+
+.otp-expiry {
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.otp-resend-link {
+    background: transparent;
+    border: none;
+    color: #38bdf8;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+}
+
+.otp-resend-link:disabled {
+    color: #64748b;
+    cursor: not-allowed;
+}
+
+.otp-resend-link:not(:disabled):hover {
+    text-decoration: underline;
+}
+
+.otp-dev-notice {
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.otp-dev-badge {
+    background: #f59e0b;
+    color: #0f172a;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.otp-dev-notice p {
+    margin: 0;
+    font-size: 12px;
+    color: #fde68a;
+}
+
+.otp-dev-notice strong {
+    color: #ffffff;
+    font-size: 14px;
+    letter-spacing: 2px;
+}
+
+.back-step-btn {
+    width: 100%;
+    margin-top: 8px;
+    font-size: 13px;
+    background: #1e293b;
+    color: #cbd5e1;
+    border: 1px solid #334155;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 6px;
+}
+
+.back-step-btn:hover {
+    background: #334155;
+    color: #ffffff;
+}
+
+

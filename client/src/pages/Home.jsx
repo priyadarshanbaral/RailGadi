@@ -67,12 +67,12 @@ export default function Home() {
 
           <div className="hero-cta">
 
-            <a
-              href="#features"
+            <Link
+              to="/live"
               className="btn btn-primary"
             >
-              Explore RailGaadi
-            </a>
+              🛰️ Live AI Train Radar
+            </Link>
 
             <a
               href="#trains"
@@ -127,23 +127,75 @@ export default function Home() {
                 duration: 0.5,
               }}
             >
-
               <strong>
                 {s.n}
               </strong>
-
               <small>
                 {s.l}
               </small>
-
             </motion.div>
-
           ))}
-
         </div>
-
       </section>
 
+      {/* =====================================================
+          LIVE AI TRAIN TRACKING SPOTLIGHT SECTION
+      ===================================================== */}
+      <section className="home-section fade-in-up">
+        <div className="features-head">
+          <span className="hero-badge">🔴 REAL-TIME AI RADAR</span>
+          <h2 className="section-title">⚡ Real-time Live Train Tracking & AI Copilot</h2>
+          <p className="features-sub">
+            Track any train live with NavIC satellite GPS telemetry, dynamic speedometer gauges, AI delay predictions, and station voice announcements.
+          </p>
+        </div>
+
+        <div className="glass-card live-home-spotlight">
+          <div className="spotlight-left">
+            <div className="spotlight-badge">
+              <span className="pulse-dot"></span> LIVE TELEMETRY ACTIVE
+            </div>
+            <h3 className="spotlight-title">12301 • HOWRAH RAJDHANI EXPRESS</h3>
+            <p className="spotlight-desc">
+              Currently cruising at <strong>115 km/h</strong> approaching New Delhi. AI neural model projects <strong>98% on-time arrival</strong> with automatic signal clearance.
+            </p>
+            <div className="spotlight-chips">
+              <span className="chip">⚡ Live Speedometer</span>
+              <span className="chip">🤖 AI Delay Forecast</span>
+              <span className="chip">🔊 Spoken Announcements</span>
+              <span className="chip">🛰️ Nationwide Radar</span>
+            </div>
+            <div className="spotlight-actions">
+              <Link to="/live?train=12301" className="btn btn-primary">
+                🚀 Launch Live Tracking Command Center
+              </Link>
+              <Link to="/live" className="btn btn-outline">
+                🛰️ Open Nationwide Radar Fleet
+              </Link>
+            </div>
+          </div>
+          <div className="spotlight-right">
+            <div className="spotlight-stats-card">
+              <div className="spotlight-stat-row">
+                <span>Signal Aspect</span>
+                <strong className="text-success">🟢 CLEAR (Max Permissible)</strong>
+              </div>
+              <div className="spotlight-stat-row">
+                <span>Speed Telemetry</span>
+                <strong className="text-highlight">115 km/h (WAP-7 6000HP)</strong>
+              </div>
+              <div className="spotlight-stat-row">
+                <span>AI Predicted Delay</span>
+                <strong className="text-success">0 min (Right On Time)</strong>
+              </div>
+              <div className="spotlight-stat-row">
+                <span>Satellite Lock</span>
+                <strong>14 Satellites (NavIC L1/L5)</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* =====================================================
           STATION TO STATION SEARCH

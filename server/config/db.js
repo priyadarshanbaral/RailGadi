@@ -11,17 +11,16 @@ export const connectDB = async () => {
     await mongoose.connect(uri, {
       serverSelectionTimeoutMS: 4000,
     });
-    console.log(`🍃 MongoDB connected: ${uri}`);
+    console.log("🍃 MongoDB connected.");
     return true;
   } catch (err) {
     console.warn(
       "⚠️  MongoDB not available — falling back to in-memory user store. " +
         "Start MongoDB locally for persistent user data."
     );
-    console.warn(`   (${err.message})`);
+    console.warn(`   (${err.name || "connection error"})`);
     return false;
   }
 };
 
 export const isDBConnected = () => mongoose.connection.readyState === 1;
-

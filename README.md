@@ -84,15 +84,20 @@ REALGADI/
 │   │   └── routes.js         # Route polylines, geo features, guides
 │   ├── routes/
 │   │   ├── trainRoutes.js    # /api/trains/*
+│   │   ├── otpRoutes.js      # /api/otp/*
 │   │   ├── analyticsRoutes.js# /api/analytics/*
 │   │   ├── companionRoutes.js# /api/companion/*
 │   │   ├── mapRoutes.js      # /api/map/*
 │   │   ├── trainApiRoutes.js # /api/train/*
 │   │   ├── weatherRoutes.js  # /api/weather/*
 │   │   ├── userRoutes.js     # /api/user/*
+│   │   ├── authRoutes.js     # /api/auth/*
 │   │   └── aiRoutes.js       # /api/ai/*
 │   └── utils/
-│       └── geo.js            # Haversine, interpolation, elevation
+│       ├── geo.js            # Haversine, interpolation, elevation
+│       ├── twilioVerify.js   # Twilio Verify REST integration
+│       ├── authToken.js      # Signed, expiring JWTs
+│       └── passwords.js      # scrypt password hashing
 └── client/                   # React frontend
     ├── vite.config.js        # Proxy /api -> localhost:5000
     └── src/
@@ -111,6 +116,7 @@ REALGADI/
 ### Prerequisites
 - Node.js 18+
 - npm
+- A Twilio account with a Verify service configured for SMS
 
 ### 1. Install dependencies
 
@@ -119,7 +125,22 @@ REALGADI/
 npm run install-all
 ```
 
-### 2. Start the backend & frontend together
+### 2. Configure Twilio Verify SMS
+
+Copy `server/.env.example` to `server/.env`. Configure MongoDB, a unique
+`JWT_SECRET` (at least 32 random characters), and a Twilio Verify service with
+SMS enabled. Put the Twilio Account SID, Auth Token, and Verify Service SID in
+the server environment only. Never put these secrets in `client/.env` or commit
+them. Confirm that India is enabled in Twilio's destination/Geo Permissions
+settings and comply with any account, sender, and local regulatory requirements
+shown in Twilio Console. The server reports missing or placeholder values at
+startup; OTP endpoints return a configuration error until valid values exist.
+
+Twilio Verify generates, sends, expires, and checks the OTP. RailGaadi does not
+store or return OTP values. The sign-up form defaults to India (+91), but also
+supports several other country calling codes.
+
+### 3. Start the backend & frontend together
 
 ```bash
 npm run dev
@@ -178,11 +199,43 @@ npm run client
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/user/register` | Register a new user (returns token) |
+| POST | `/api/user/register` | Disabled; registration requires SMS OTP verification |
 | POST | `/api/user/login` | Login (returns token) |
+| POST | `/api/user/forgot-password` | Disabled; password recovery requires verified phone OTP |
 | GET | `/api/user/favorites` | List favourite trains *(Bearer token)* |
 | POST | `/api/user/favorite` | Add favourite train *(Bearer token)* |
 | DELETE | `/api/user/favorite` | Remove favourite train *(Bearer token)* |
+
+#### `/api/auth`
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/send-otp` | Send a registration verification code by SMS |
+| POST | `/api/auth/verify-otp` | Verify the SMS code and create the account |
+| POST | `/api/auth/resend-otp` | Resend the SMS verification code |
+| POST | `/api/auth/login` | Login with the registered email and password |
+
+#### `/api/otp`
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/otp/send` | Send a Twilio Verify SMS to a valid E.164 mobile number |
+| POST | `/api/otp/verify` | Verify the code, then create the account or log in the verified phone account |
+
+`/api/auth/send-otp` and `/api/auth/verify-otp` remain as compatible aliases.
+Send accepts `{ "phone": "+919876543210" }`; for new accounts also send
+`name`, `email`, and `password`. Verify accepts `phone` and `otp`; new-account
+verification additionally requires `name`, `email`, and `password`. If the
+number is already registered, a correct OTP logs that account in and ignores
+registration details. Phone numbers must be international E.164 numbers; the
+API also normalizes an Indian 10-digit number to +91.
+
+For password recovery, call `/api/otp/send` with
+`{"phone":"+919876543210","purpose":"password-reset"}`, then call
+`/api/otp/verify` with that phone, the SMS `otp`, and `newPassword`. The server
+uses the purpose attached to the pending verification and only changes the
+password after Twilio approves the code; the legacy email-only reset endpoint
+is disabled.
 
 #### `/api/ai`
 
@@ -213,10 +266,22 @@ curl "http://localhost:5000/api/weather/current?station=NDLS"
 curl "http://localhost:5000/api/weather/forecast?station=NDLS"
 curl "http://localhost:5000/api/weather/route-weather?trainNumber=12301"
 
-# User registration & favorites
-curl -X POST http://localhost:5000/api/user/register \
+# Request a Twilio Verify session (the API sends the real SMS)
+curl -X POST http://localhost:5000/api/otp/send \
   -H "Content-Type: application/json" \
-  -d '{"name":"Aarav","email":"aarav@example.com","password":"secret"}'
+  -d '{"phone":"+919876543210","name":"Aarav","email":"aarav@example.com","password":"secret"}'
+
+# Verify the received code and create the account
+curl -X POST http://localhost:5000/api/otp/verify \
+  -H "Content-Type: application/json" \
+  -d '{"phone":"+919876543210","name":"Aarav","email":"aarav@example.com","password":"secret","otp":"123456"}'
+
+# Existing phone account: send OTP, then verify without registration details
+curl -X POST http://localhost:5000/api/otp/verify \
+  -H "Content-Type: application/json" \
+  -d '{"phone":"+919876543210","otp":"123456"}'
+
+# User favorites
 curl -X POST http://localhost:5000/api/user/favorite \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer <TOKEN>" \
@@ -239,89 +304,59 @@ curl -X POST http://localhost:5000/api/ai/assistant \
 
 ---
 
-## ✉️ Registration Confirmation Email
+## 📱 OTP testing in Postman
 
-When a user successfully registers on the RailGaadi website, a professional
-`Welcome to RailGaadi – Registration Successful` email is automatically sent to
-the **same email address** used during registration.
+1. Start with valid server-side Twilio and MongoDB settings. Make a `POST` to
+   `http://localhost:5000/api/otp/send`, with JSON body
+   `{"phone":"+919876543210","name":"Aarav","email":"aarav@example.com","password":"a-long-password"}`.
+   A successful HTTP response confirms Twilio accepted the request, not that
+   the recipient handset received the SMS.
+2. Enter the actual SMS code in a `POST` to `/api/otp/verify` using the same
+   phone and the received six-digit `otp`. A new number creates a MongoDB user;
+   a phone already on an account logs that account in.
+3. Send a wrong six-digit value to verify; expect HTTP 401. After five failed
+   checks for a phone, the endpoint blocks further checks until a new code is
+   sent.
+4. To test expiry, wait until the configured Twilio Verify code validity period
+   passes, then verify the old code; Twilio must reject it.
+5. Try malformed values such as `123` or `not-a-phone`; expect HTTP 400 and no
+   SMS request.
+6. Resend immediately; expect HTTP 429 during the 30-second cooldown. The
+   server also limits sends to five per IP per hour and checks to ten per IP
+   per ten minutes. These counters are in-memory per server process; Twilio
+   also applies its own service limits.
+7. Check the returned user has the verified phone and that a successful
+   response includes a signed, expiring token. With MongoDB enabled, confirm
+   one user exists for that phone and a unique index prevents duplicate
+   accounts. Email/password login remains available at `/api/auth/login`.
 
-### 🔐 Security
-- The confirmation email **never includes the user's plain-text password**.
-- Login uses the normal `/api/auth/login` flow; password recovery is handled
-  via the app's secure "Forgot Password" process.
-- Gmail credentials are read **only** from the server-side `.env` file, never
-  from the React/frontend code.
+For a Postman request, select **Body → raw → JSON** and set
+`Content-Type: application/json`. Use the same E.164 phone on send and verify.
+Never include Twilio credentials or real OTP codes in shared Postman
+collections or logs.
 
-### 📧 How it works
-The reusable function `sendRegistrationConfirmation(user)` in
-`server/utils/sendRegistrationConfirmation.js`:
-- Accepts a `user` object — `{ name, email, userId, createdAt }`
-- Uses **Nodemailer + Gmail SMTP** to send a branded, responsive HTML email
-  (inline styles + table-based layout for Gmail, Outlook and mobile apps)
-- Includes the RailGaadi name/logo, welcome message, account details
-  (User ID, Name, Email, Registration date & time), a **Login to RailGaadi**
-  button, the website link, a security reminder, support/contact info and a
-  professional footer
-- Returns `{ success: true, messageId }` on success, or
-  `{ success: false, error }` on failure — it **never throws**, so a failed
-  email never blocks a successful registration.
+## 🚀 Deployment
 
-It is invoked automatically from `server/routes/authRoutes.js` in both the
-MongoDB and in-memory registration paths.
-
-### ⚙️ Setup (`.env`)
-Create `server/.env` (see `server/.env.example`) with:
-
-```dotenv
-# Gmail that SENDS the confirmation emails
-EMAIL_USER=yourgmail@gmail.com
-
-# Gmail "App Password" (NOT your normal Gmail password)
-# Create one at https://myaccount.google.com/apppasswords
-EMAIL_PASS=your-16-char-app-password
-
-# Public URL of the frontend (used in the Login button & links)
-FRONTEND_URL=http://localhost:3000
-
-# Support / contact email shown in the email footer
-SUPPORT_EMAIL=support@railgaadi.com
-```
-
-> 💡 You must enable **2-Step Verification** on the Gmail account and generate
-> an **App Password** for `EMAIL_PASS`. Your normal Gmail password will not work.
-
-### 🛠️ Troubleshooting — "No confirmation email received"
-
-If you register and the confirmation email doesn't arrive, the most common
-cause is **invalid Gmail credentials** in `server/.env`:
-
-1. **`EMAIL_USER` is a placeholder** — e.g. `youremail@gmail.com`. It must be
-   your **real** Gmail address that sends the email.
-2. **`EMAIL_PASS` is the wrong length** — a real Gmail **App Password is exactly
-   16 characters**. If your value is a different length (e.g. 23), it is either
-   your normal Gmail password or a placeholder. Gmail rejects it with
-   `535-5.7.8 Username and Password not accepted` and **no email is sent**.
-3. **App Password not generated** — Go to
-   https://myaccount.google.com/apppasswords (after enabling **2-Step
-   Verification**) and create an App Password for "Mail". Paste that 16-char
-   code into `EMAIL_PASS`.
-
-> The server now **verifies the SMTP connection** before sending, so a bad
-> credential logs a clear `Gmail SMTP login REJECTED` error in the terminal
-> instead of failing silently. Registration still succeeds regardless.
-
-### 🧪 Testing
-Register a new user via `POST /api/auth/register`:
-
-```bash
-curl -X POST http://localhost:5000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Aarav","email":"you@example.com","password":"secret"}'
-```
-
-If configured correctly, `you@example.com` receives the branded confirmation
-email. If `EMAIL_USER`/`EMAIL_PASS` are missing, the server logs a warning and
-registration still succeeds (no email is sent).
+- Deploy the `server/` app with `MONGODB_URI`, `JWT_SECRET`,
+  `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and
+  `TWILIO_VERIFY_SERVICE_SID` set as private hosting-platform environment
+  variables. Set `NODE_ENV=production`.
+- Use a MongoDB Atlas URI with network access restricted to the backend host.
+  Do not deploy with the in-memory fallback: it loses accounts on restart.
+- Set `FRONTEND_URL` and/or comma-separated `CORS_ORIGINS` to the exact
+  production frontend origin(s), including `https://`. The backend's public URL
+  must use HTTPS.
+- If deployed behind a trusted reverse proxy, set `TRUST_PROXY_HOPS` to the
+  number of trusted proxy hops so IP-based OTP limits use the client address.
+- Deploy the `client/` app separately or behind a frontend host. Set the
+  public build-time `VITE_API_URL` to the backend API base, for example
+  `https://api.example.com/api`. This variable must contain no secrets.
+- Configure the Twilio Verify SMS service, permitted destination countries,
+  billing, and any required India registration in Twilio Console. Test a real
+  SMS and approved verification after deployment; do not consider the flow
+  live until both succeed.
+- Use HTTPS for the frontend and API. Rotate credentials immediately if they
+  are ever exposed, and keep all `.env` files outside source control.
 
 ---
 
@@ -334,4 +369,3 @@ registration still succeeds (no email is sent).
 ---
 
 Made with ❤️ for Indian Railways travellers.
-

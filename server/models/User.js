@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
+import { signAuthToken } from "../utils/authToken.js";
+import { hashPassword } from "../utils/passwords.js";
 
-// User model — MongoDB stores only user data (name, email, password)
+// User model — MongoDB stores account details and the verified mobile number.
 const userSchema = new mongoose.Schema(
   {
     userId: {
@@ -23,6 +25,14 @@ const userSchema = new mongoose.Schema(
       trim: true,
       match: [/^\S+@\S+\.\S+$/, "Please provide a valid email address"],
     },
+    phone: {
+      type: String,
+      required: [true, "Mobile number is required"],
+      unique: true,
+      sparse: true,
+      trim: true,
+      match: [/^\+[1-9]\d{7,14}$/, "Please provide a valid mobile number"],
+    },
     password: {
       type: String,
       required: [true, "Password is required"],
@@ -34,11 +44,19 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-// Basic token generation (demo — base64 of user id)
 userSchema.methods.generateToken = function () {
-  return Buffer.from(`rg-user-${this._id}`).toString("base64");
+  return signAuthToken(this._id);
 };
+
+userSchema.pre("save", async function () {
+  if (
+    this.isModified("password") &&
+    typeof this.password === "string" &&
+    !this.password.startsWith("scrypt$")
+  ) {
+    this.password = await hashPassword(this.password);
+  }
+});
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 export default User;
-

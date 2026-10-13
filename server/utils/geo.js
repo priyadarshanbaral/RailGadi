@@ -65,3 +65,17 @@ export const currentStationIndex = (routeCodes, progress) => {
   const idx = Math.floor(progress * (routeCodes.length - 1));
   return Math.min(idx, routeCodes.length - 1);
 };
+
+// Calculate bearing in degrees between two lat/lng points
+export const calculateBearing = (startLat, startLng, destLat, destLng) => {
+  const startLatRad = (startLat * Math.PI) / 180;
+  const startLngRad = (startLng * Math.PI) / 180;
+  const destLatRad = (destLat * Math.PI) / 180;
+  const destLngRad = (destLng * Math.PI) / 180;
+  const y = Math.sin(destLngRad - startLngRad) * Math.cos(destLatRad);
+  const x =
+    Math.cos(startLatRad) * Math.sin(destLatRad) -
+    Math.sin(startLatRad) * Math.cos(destLatRad) * Math.cos(destLngRad - startLngRad);
+  const brng = (Math.atan2(y, x) * 180) / Math.PI;
+  return Math.round((brng + 360) % 360);
+};

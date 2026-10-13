@@ -52,13 +52,13 @@ router.get("/search", (req, res) => {
         s.name.toLowerCase().includes(q) ||
         s.state.toLowerCase().includes(q)
     )
-    .slice(0, 50)
     .map((s) => ({
       code: s.code,
       name: s.name,
       state: s.state,
       lat: s.lat,
       lng: s.lng,
+      elev: s.elev,
       platform: platformFor(s.code),
     }));
   res.json({ count: list.length, stations: list });
@@ -72,6 +72,7 @@ router.get("/", (req, res) => {
     state: s.state,
     lat: s.lat,
     lng: s.lng,
+    elev: s.elev,
     platform: platformFor(s.code),
   }));
   res.json({ count: list.length, stations: list });

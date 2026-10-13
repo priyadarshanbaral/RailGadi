@@ -66,7 +66,7 @@ export const AppProvider = ({ children }) => {
 
   const isFavorite = useCallback((number) => favorites.some((t) => t.number === number), [favorites]);
 
-// ─── Auth methods (use /api/auth REST flow with User ID + welcome email) ───
+// ─── Auth methods (Twilio phone verification + RailGaadi accounts) ────────
   const login = useCallback(async (email, password) => {
     setAuthLoading(true);
     try {
@@ -81,13 +81,11 @@ export const AppProvider = ({ children }) => {
     }
   }, []);
 
-  const register = useCallback(async (name, email, password, confirmPassword) => {
+  const sendOtp = useCallback(async (name, email, phone, password, confirmPassword) => {
     setAuthLoading(true);
     try {
-const res = await api.auth.register({ name, email, password, confirmPassword });
-      setUser(res.user);
-      setToken(res.token);
-      return { ok: true, user: res.user, message: res.message, email: res.email };
+      const res = await api.auth.sendOtp({ name, email, phone, password, confirmPassword });
+      return { ok: true, data: res };
     } catch (err) {
       return { ok: false, error: err.message };
     } finally {
@@ -95,10 +93,50 @@ const res = await api.auth.register({ name, email, password, confirmPassword });
     }
   }, []);
 
-  const forgotPassword = useCallback(async (email, newPassword) => {
+  const sendPhoneOtp = useCallback(async (phone, purpose = "login") => {
     setAuthLoading(true);
     try {
-      const res = await api.user.forgotPassword({ email, newPassword });
+      const res = await api.auth.sendOtp({ phone, purpose });
+      return { ok: true, data: res };
+    } catch (err) {
+      return { ok: false, error: err.message };
+    } finally {
+      setAuthLoading(false);
+    }
+  }, []);
+
+  const verifyOtp = useCallback(async (registration, otp) => {
+    setAuthLoading(true);
+    try {
+      const res = await api.auth.verifyOtp({ ...registration, otp });
+      if (res.user && res.token) {
+        setUser(res.user);
+        setToken(res.token);
+      }
+      return { ok: true, user: res.user, message: res.message, phoneVerified: res.phoneVerified };
+    } catch (err) {
+      return { ok: false, error: err.message };
+    } finally {
+      setAuthLoading(false);
+    }
+  }, []);
+
+  const resendOtp = useCallback(async (phone) => {
+    setAuthLoading(true);
+    try {
+      const res = await api.auth.resendOtp({ phone });
+      return { ok: true, data: res };
+    } catch (err) {
+      return { ok: false, error: err.message };
+    } finally {
+      setAuthLoading(false);
+    }
+  }, []);
+
+  const completePasswordReset = useCallback(async (phone, otp, newPassword) => {
+    setAuthLoading(true);
+    try {
+      const res = await api.auth.verifyOtp({ phone, otp, newPassword });
       return { ok: true, message: res.message };
     } catch (err) {
       return { ok: false, error: err.message };
@@ -124,8 +162,11 @@ const res = await api.auth.register({ name, email, password, confirmPassword });
       token,
       authLoading,
       login,
-      register,
-      forgotPassword,
+      sendOtp,
+      sendPhoneOtp,
+      verifyOtp,
+      resendOtp,
+      completePasswordReset,
       logout,
     }),
     [
@@ -138,8 +179,11 @@ const res = await api.auth.register({ name, email, password, confirmPassword });
       token,
       authLoading,
       login,
-      register,
-      forgotPassword,
+      sendOtp,
+      sendPhoneOtp,
+      verifyOtp,
+      resendOtp,
+      completePasswordReset,
       logout,
     ]
   );

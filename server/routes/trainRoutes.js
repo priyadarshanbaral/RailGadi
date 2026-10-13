@@ -8,6 +8,8 @@ import {
   interpolatePoint,
   currentStationIndex,
 } from "../utils/geo.js";
+import { calculateLiveTelemetry, getLiveRadarFleet } from "../utils/liveTracker.js";
+import { generateAiPrediction } from "../utils/aiPrediction.js";
 
 const router = Router();
 
@@ -55,6 +57,7 @@ const trainSummary = (t) => {
       : null,
     progress: Math.round(progress * 100),
     route: t.route,
+    runningDays: t.runningDays,
     journeyStations: t.route.length,
   };
 };
@@ -234,74 +237,31 @@ router.get("/search", (req, res) => {
   res.json(results);
 });
 
-// GET /api/trains/:number - full live tracking detail
+// GET /api/trains/live-radar - nationwide active train radar fleet
+router.get("/live-radar", (req, res) => {
+  const simSpeed = parseFloat(req.query.simSpeed) || 1;
+  const fleet = getLiveRadarFleet({ simSpeed });
+  res.json({
+    count: fleet.length,
+    timestamp: new Date().toISOString(),
+    fleet,
+  });
+});
+
+// GET /api/trains/:number - full live tracking detail with real-time telemetry and AI prediction
 router.get("/:number", (req, res) => {
   const train = trains.find((t) => t.number === req.params.number);
   if (!train) return res.status(404).json({ error: "Train not found" });
 
-  const routeStations = train.route.map((code) => stationByCode(code)).filter(Boolean);
-  const polyline = buildRoutePolyline(train.route);
-  const totalDistance = routeDistance(polyline);
+  const simSpeed = parseFloat(req.query.simSpeed) || 1;
+  const customTime = req.query.time ? Number(req.query.time) : undefined;
 
-  // Simulate live progress based on train number hash for dynamic feel
-  const hash = train.number.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
-  const baseProgress = 0.15 + (hash % 70) / 100;
-  const liveProgress = Math.min(0.95, baseProgress);
-
-  const currentIdx = currentStationIndex(train.route, liveProgress);
-  const currentStation = routeStations[currentIdx];
-  const nextStation = routeStations[currentIdx + 1] || null;
-  const distanceCovered = distanceToIndex(polyline, currentIdx + 1);
-  const distanceRemaining = totalDistance - distanceCovered;
-  const livePos = interpolatePoint(polyline, liveProgress);
-
-  const upcoming = routeStations.slice(currentIdx + 1).map((s, i) => ({
-    code: s.code,
-    name: s.name,
-    state: s.state,
-    etaMinutes: 45 + i * 60,
-distanceRemaining: Math.round(distanceToIndex(polyline, currentIdx + 1 + i + 1) - distanceCovered),
-  }));
-
-  const toStation = stationByCode(train.to);
-  const destination = toStation
-    ? {
-        code: toStation.code,
-        name: toStation.name,
-        state: toStation.state,
-        lat: toStation.lat,
-        lng: toStation.lng,
-        platform: platformFor(toStation.code),
-      }
-    : { code: train.to, name: train.to };
-
-  const currentPlatform = currentStation ? platformFor(currentStation.code) : null;
+  const telemetry = calculateLiveTelemetry(train, { simSpeed, customTime });
+  const aiPrediction = generateAiPrediction(train, telemetry);
 
   res.json({
-    train: {
-      number: train.number,
-      name: train.name,
-      type: train.type,
-      status: train.status,
-      delay: train.delay,
-      from: train.from,
-      to: train.to,
-    },
-    currentStation,
-    nextStation,
-    destination,
-    currentPlatform,
-    livePosition: livePos
-      ? { lat: Number(livePos[0].toFixed(4)), lng: Number(livePos[1].toFixed(4)) }
-      : null,
-    progress: Math.round(liveProgress * 100),
-    distanceCovered: Math.round(distanceCovered),
-    distanceRemaining: Math.round(distanceRemaining),
-    totalDistance: Math.round(totalDistance),
-    lastUpdate: new Date().toISOString(),
-    upcoming,
-    routeStations,
-    polyline,
+    ...telemetry,
+    aiPrediction,
   });
 });
 

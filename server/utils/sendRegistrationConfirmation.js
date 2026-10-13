@@ -9,7 +9,7 @@ import nodemailer from "nodemailer";
 //
 // SECURITY: This email intentionally does NOT include the user's plain-text
 // password anywhere. Login is handled via the normal /api/auth/login flow, and
-// password recovery is available through the app's "Forgot Password" process.
+// password recovery requires verification of the account phone by SMS.
 //
 // Usage:
 //   import { sendRegistrationConfirmation } from "../utils/sendRegistrationConfirmation.js";
@@ -222,7 +222,7 @@ export const sendRegistrationConfirmation = async (user) => {
                         <td style="padding:14px 16px; font-size:13px; color:#7a5a12; line-height:1.6;">
                           <strong>🔒 For your security:</strong> Please do not share your login credentials with anyone.
                           RailGaadi will never ask for your password by email. If you ever need to reset your password,
-                          use the secure "Forgot Password" option on the login page.
+                          use the "Forgot Password" option to verify your account phone by SMS.
                         </td>
                       </tr>
                     </table>

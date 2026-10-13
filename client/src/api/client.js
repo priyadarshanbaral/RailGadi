@@ -1,9 +1,35 @@
-const BASE = "/api";
+const BASE = (import.meta.env.VITE_API_URL || "/api").replace(/\/$/, "");
 
 const request = async (path, options = {}) => {
-  const res = await fetch(`${BASE}${path}`, options);
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `API error: ${res.status}`);
+  let res;
+  try {
+    res = await fetch(`${BASE}${path}`, options);
+  } catch {
+    // fetch() itself failed — the API is unreachable (server down or proxy error).
+    throw new Error(
+      "Cannot reach the server. Make sure the API is running on port 5000 and try again."
+    );
+  }
+
+  const raw = await res.text();
+  let data = {};
+  if (raw) {
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      // Non-JSON response body (e.g. a proxy error page).
+      data = { error: raw.slice(0, 200) };
+    }
+  }
+
+  if (!res.ok) {
+    throw new Error(
+      data.error ||
+        (res.status >= 500
+          ? "The server ran into a problem. Please try again in a moment."
+          : `Request failed (${res.status}).`)
+    );
+  }
   return data;
 };
 
@@ -21,7 +47,8 @@ getAllTrains: () => request("/trains/all"),
   searchByRoute: (from, to) =>
     request(`/trains/search-route?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`),
   getTrainsByStation: (code) => request(`/trains/by-station/${encodeURIComponent(code)}`),
-  getTrainLive: (number) => request(`/trains/${number}`),
+  getTrainLive: (number, simSpeed = 1) => request(`/trains/${encodeURIComponent(number)}?simSpeed=${simSpeed}`),
+  getLiveRadar: (simSpeed = 1) => request(`/trains/live-radar?simSpeed=${simSpeed}`),
 
   // Stations
   getStations: () => request("/stations"),
@@ -58,10 +85,8 @@ getAllTrains: () => request("/trains/all"),
   },
 
 // /api/user
-  user: {
-    register: (body) => jsonRequest("POST")("/user/register", body),
-    login: (body) => jsonRequest("POST")("/user/login", body),
-    forgotPassword: (body) => jsonRequest("POST")("/user/forgot-password", body),
+user: {
+login: (body) => jsonRequest("POST")("/user/login", body),
     getFavorites: (token) =>
       request("/user/favorites", { headers: { Authorization: `Bearer ${token}` } }),
     addFavorite: (token, trainNumber) =>
@@ -78,9 +103,11 @@ getAllTrains: () => request("/trains/all"),
       }),
   },
 
-// /api/auth (new REST registration flow with User ID + welcome email)
+  // /api/auth (REST registration with phone OTP verification & User ID)
   auth: {
-    register: (body) => jsonRequest("POST")("/auth/register", body),
+    sendOtp: (body) => jsonRequest("POST")("/otp/send", body),
+    verifyOtp: (body) => jsonRequest("POST")("/otp/verify", body),
+    resendOtp: (body) => jsonRequest("POST")("/auth/resend-otp", body),
     login: (body) => jsonRequest("POST")("/auth/login", body),
     profile: (token) =>
       request("/auth/profile", { headers: { Authorization: `Bearer ${token}` } }),
@@ -90,5 +117,7 @@ getAllTrains: () => request("/trains/all"),
   ai: {
     assistant: (query, trainNumber) =>
       jsonRequest("POST")("/ai/assistant", { query, trainNumber }),
+    prediction: (trainNumber, simSpeed = 1) =>
+      request(`/ai/prediction/${encodeURIComponent(trainNumber)}?simSpeed=${simSpeed}`),
   },
 };

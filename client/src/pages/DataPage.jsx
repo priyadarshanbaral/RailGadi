@@ -11,6 +11,7 @@ export default function DataPage() {
   const [stations, setStations] = useState([]);
   const [stationsLoading, setStationsLoading] = useState(true);
   const [stationQuery, setStationQuery] = useState("");
+  const [shownStations, setShownStations] = useState(200);
   const [selectedStation, setSelectedStation] = useState(null);
   const [stationDetail, setStationDetail] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -19,6 +20,7 @@ export default function DataPage() {
   const [trains, setTrains] = useState([]);
   const [trainsLoading, setTrainsLoading] = useState(true);
   const [trainQuery, setTrainQuery] = useState("");
+  const [shownTrains, setShownTrains] = useState(60);
   const [expandedRoute, setExpandedRoute] = useState(null);
   const [routeData, setRouteData] = useState(null);
   const [routeLoading, setRouteLoading] = useState(false);
@@ -70,6 +72,9 @@ export default function DataPage() {
         (t.toCode || "").toLowerCase().includes(q)
     );
   }, [trains, trainQuery]);
+
+  useEffect(() => setShownStations(200), [stationQuery]);
+  useEffect(() => setShownTrains(60), [trainQuery]);
 
   const openStationDetail = async (station) => {
     setSelectedStation(station);
@@ -163,9 +168,9 @@ export default function DataPage() {
                     <span>Elevation</span>
                     <span>Lat / Lng</span>
                   </div>
-                  {filteredStations.slice(0, 200).map((s) => (
+                  {filteredStations.slice(0, shownStations).map((s, index) => (
                     <button
-                      key={s.code}
+                      key={`${s.code}-${index}`}
                       className="data-table-row data-table-body"
                       onClick={() => openStationDetail(s)}
                     >
@@ -178,11 +183,16 @@ export default function DataPage() {
                     </button>
                   ))}
                 </div>
-                {filteredStations.length > 200 && (
-                  <div className="data-hint">
-                    Showing first 200 of {filteredStations.length} — refine your search to narrow down.
-                  </div>
-                )}
+              </div>
+            )}
+            {!stationsLoading && shownStations < filteredStations.length && (
+              <div className="train-see-all">
+                <button
+                  className="btn btn-primary"
+                  onClick={() => setShownStations((shown) => Math.min(shown + 200, filteredStations.length))}
+                >
+                  Load More Stations ({filteredStations.length - shownStations} remaining)
+                </button>
               </div>
             )}
           </section>
@@ -206,7 +216,7 @@ export default function DataPage() {
               <div className="route-empty glass-card">No trains match your search.</div>
             ) : (
               <div className="grid grid-3">
-                {filteredTrains.map((t) => (
+                {filteredTrains.slice(0, shownTrains).map((t) => (
                   <div key={t.number} className="data-train-block">
                     <TrainCard train={t} />
                     <button
@@ -235,10 +245,44 @@ export default function DataPage() {
                                 </div>
                               ))}
                             </div>
+                            {routeData.timetable?.length > 0 && (
+                              <div className="data-route-list">
+                                {routeData.timetable.map((stop, i) => (
+                                  <div className="data-route-station" key={`${stop.seq}-${i}`}>
+                                    <span className="data-route-seq">{stop.seq}</span>
+                                    <span className="data-route-name">{stop.station}</span>
+                                    <span className="data-muted">
+                                      Arr: {stop.arrival || "—"} · Dep: {stop.departure || "—"}
+                                    </span>
+                                    <span className="data-muted">
+                                      {stop.distance || "—"} · Day {stop.day || "—"}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            {routeData.runningDays && (
+                              <div className="data-hint">
+                                Runs: {Object.entries(routeData.runningDays)
+                                  .filter(([, runs]) => runs)
+                                  .map(([day]) => day)
+                                  .join(", ") || "No running days listed"}
+                              </div>
+                            )}
                           </>
                         ) : (
                           <div className="data-hint">Could not load route data.</div>
                         )}
+                      </div>
+                    )}
+                    {!trainsLoading && shownTrains < filteredTrains.length && (
+                      <div className="train-see-all">
+                        <button
+                          className="btn btn-primary"
+                          onClick={() => setShownTrains((shown) => Math.min(shown + 60, filteredTrains.length))}
+                        >
+                          Load More Trains ({filteredTrains.length - shownTrains} remaining)
+                        </button>
                       </div>
                     )}
                   </div>

@@ -96,9 +96,9 @@ export default function Stations() {
               <span>Platform</span>
               <span>Lat / Lng</span>
             </div>
-            {filtered.map((s) => (
+            {filtered.map((s, index) => (
               <button
-                key={s.code}
+                key={`${s.code}-${index}`}
                 className="data-table-row data-table-body"
                 onClick={() => {
                   setSelected(s.code);

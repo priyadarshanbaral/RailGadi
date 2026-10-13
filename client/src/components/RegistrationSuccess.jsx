@@ -2,12 +2,11 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
 // Shown after a successful registration: celebrates the account, displays the
-// generated User ID, confirms the welcome email, and offers a CTA to continue.
+// generated User ID, confirms phone verification, and offers a CTA to continue.
 export default function RegistrationSuccess({ user }) {
   const email = user?.email || "";
+  const phone = user?.phone || "";
   const userId = user?.userId || "";
-  const emailStatus = user?.emailStatus || null;
-  const emailSent = emailStatus?.success === true;
 
   return (
     <motion.div
@@ -28,23 +27,13 @@ export default function RegistrationSuccess({ user }) {
       </div>
 
       <div className="reg-success-email">
-        <span>📧 {emailSent ? "A confirmation email has been sent to" : "Registered email"}</span>
-        <strong>{email}</strong>
+        <span>📱 Mobile verified</span>
+        <strong>{phone}</strong>
       </div>
 
-      {emailSent ? (
-        <p className="reg-success-note">
-          Check your Gmail inbox for your branded welcome email with your full
-          account details.
-        </p>
-      ) : (
-        <p className="reg-success-note reg-success-warn">
-          ⚠️ We could not send the confirmation email right now, but your
-          account was created successfully. The server may be missing valid
-          Gmail credentials (<code>EMAIL_USER</code> / <code>EMAIL_PASS</code>)
-          in <code>server/.env</code>. Please contact support.
-        </p>
-      )}
+      <p className="reg-success-note">
+        Your email <strong>{email}</strong> is saved as your account login.
+      </p>
 
       <div className="reg-success-actions">
         <Link to="/dashboard" className="btn btn-primary">
